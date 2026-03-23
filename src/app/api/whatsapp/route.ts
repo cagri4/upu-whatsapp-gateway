@@ -147,6 +147,8 @@ function parseWebhook(payload: Record<string, unknown>): { phone: string; messag
 
 // ─── GET: Meta webhook verification ────────────────────────────────────────
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const mode = url.searchParams.get("hub.mode");
