@@ -153,7 +153,10 @@ export async function GET(req: NextRequest) {
   const token = url.searchParams.get("hub.verify_token");
   const challenge = url.searchParams.get("hub.challenge");
 
-  if (mode === "subscribe" && token === process.env.WHATSAPP_VERIFY_TOKEN) {
+  const expectedToken = process.env.WHATSAPP_VERIFY_TOKEN;
+  console.log("[gateway] Verify attempt:", { mode, token, expectedToken: expectedToken ? "set" : "NOT SET" });
+
+  if (mode === "subscribe" && token === expectedToken) {
     console.log("[gateway] Webhook verified");
     return new Response(challenge || "", { status: 200 });
   }
