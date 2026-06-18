@@ -270,9 +270,16 @@ export async function POST(req: NextRequest) {
 
 async function forwardToSaaS(webhookUrl: string, payload: unknown) {
   try {
+    // Gateway↔SaaS paylaşılan-secret: SaaS webhook'u bu header ile gelmeyen
+    // istekleri reddeder (sahte/spoof webhook koruması). Env set değilse
+    // header gönderilmez (kademeli geçiş — SaaS tarafı da env set olunca zorlar).
+    const fwdHeaders: Record<string, string> = { "Content-Type": "application/json" };
+    if (process.env.GATEWAY_FORWARD_SECRET) {
+      fwdHeaders["x-upu-gateway-secret"] = process.env.GATEWAY_FORWARD_SECRET;
+    }
     const res = await fetch(webhookUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: fwdHeaders,
       body: JSON.stringify(payload),
     });
     if (!res.ok) {
